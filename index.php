@@ -32,6 +32,7 @@ class ProductInfo extends Product
     public $image;
     public $price;
     public $animal;
+    use Discount;
 
     public function __construct($_image, $_price, $_animal, $_description, $_nome = '', $_tipo = '')
     {
@@ -66,6 +67,26 @@ class ProductInfo extends Product
         return $this->animal = $_animal;
     }
 }
+
+trait Discount {
+    public function setDiscountPrice($_discount)
+    {
+        if (!is_int($_discount)) {
+            throw new Exception('Is not a number');
+        }
+        if ($this->tipo == 'Gioco'){
+            settype($this->price, "integer");
+            $this->price = ($this->price - ($_discount / 100));
+            return "$this->price$ <span class='text-light bg-danger rounded-pill p-1'>-$_discount%</span>";
+        } else {
+            return $this->price;
+        }
+       
+    }
+}
+
+
+
 
 $product1 = new ProductInfo('https://picsum.photos/200', '6.99$', 'Cane', 'Un divertente giocattolo a forma di osso per il tuo amico a quattro zampe.', 'Giocattolo a forma di osso', 'Gioco');
 $product2 = new ProductInfo('https://picsum.photos/200', '8.49$', 'Gatto', 'Un morbido cuscino perfetto per il riposo del tuo felino.', 'Cuscino', 'Accessori');
@@ -112,7 +133,7 @@ $productsArray =
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css'
         integrity='sha512-jnSuA4Ss2PkkikSOLtYs8BlYIeeIK1h99ty4YfvRPAlzr377vr3CXDb7sb7eEEBYjDtcYj+AjBH3FLv5uSJuXg=='
-        crossorigin='anonymous' />
+        crossorigin='anonymous'/>
         <link rel="stylesheet" href="style.css">
     <title>PHP-OOP-2</title>
 </head>
@@ -138,7 +159,17 @@ $productsArray =
                 <p class="card-text"><?php echo $element->description?></p>
             </div>
             <div class="border-top p-3 d-flex justify-content-between">
-                <span><?php echo $element->price?></span>
+                <?php if($element->tipo == 'Gioco'):?>
+                    <span><?php 
+                        try {
+                            echo $element->setDiscountPrice(20);
+                            } catch (Exception $e) {
+                            echo 'Eccezione: ' . $e->getMessage();
+                            };
+                        ?></span>
+                <?php else:?>
+                    <span><?php echo $element->price?></span>
+                <?php endif?>
                 <span><?php echo $element->tipo?></span>
             </div>
         </div>
